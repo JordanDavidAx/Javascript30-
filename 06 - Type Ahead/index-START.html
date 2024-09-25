@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://fav.farm/🔥" />
+</head>
+<body>
+
+<form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+    </ul>
+</form>
+<script>
+  const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+  const cities = []
+
+  fetch(endpoint)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        cities.push(...data);
+      })
+      .catch(error => {
+        console.error('There was a problem with your fetch operation:', error);
+      })
+
+  document.querySelector('.search').addEventListener('input', function () {
+    const search = this.value;
+    const matches = cities.filter(place => {
+      const regex = new RegExp(search, 'gi');
+      return place.city.match(regex) || place.state.match(regex)
+    })
+
+    console.log('matches', matches);
+    const container = document.querySelector('ul.suggestions');
+    console.log('container', container);
+
+    const htmlCreate = matches.map(match => {
+      console.log('match', match);
+      const regex = new RegExp(this.value, 'gi');
+      const cityName = match.city.replace(regex, `<span class="hl">${this.value}</span>`);
+      const stateName = match.state.replace(regex, `<span class="hl">${this.value}</span>`);
+
+      return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${match.population}</span>
+      </li>
+    `;
+    }).join('');
+
+    container.innerHTML = htmlCreate;
+  })
+
+</script>
+</body>
+</html>
